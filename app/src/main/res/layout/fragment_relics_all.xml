@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.RelicsAllActivity">
+    android:id="@+id/sr_lly"
+    tools:context=".ui.Activity.RelicsAllActivity">
+
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <include layout="@layout/fragment_toolbar"></include>
 
-    <android.support.v7.widget.RecyclerView
+
+        <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/rv_relicsAll">
@@ -18,4 +23,4 @@
     </android.support.v7.widget.RecyclerView>
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

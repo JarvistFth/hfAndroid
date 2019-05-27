@@ -1,5 +1,6 @@
 package com.example.root.relicstest.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +22,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RelicsAllActivity extends BaseActivity {
+public class RelicsAllActivity extends BaseActivity implements RelicsAdapter.RelicsAdapterListener {
     RecyclerView rv_relicsall;
 
     private List<Relics> relicsList = new ArrayList<>();
@@ -58,6 +59,7 @@ public class RelicsAllActivity extends BaseActivity {
                 case UPDATE_RV:
                     relicsList = (List<Relics>) msg.obj;
                     adapter = new RelicsAdapter(relicsList);
+                    adapter.setClickLitener(RelicsAllActivity.this);
                     rv_relicsall.setAdapter(adapter);
             }
         }
@@ -97,5 +99,14 @@ public class RelicsAllActivity extends BaseActivity {
                 t.printStackTrace();
             }
         });
+    }
+
+    @Override
+    public void onRelicsClick(View v) {
+        int pos = (Integer)v.getTag();
+        Relics relics = relicsList.get(pos);
+        Intent intent = new Intent(RelicsAllActivity.this,RelicsTransferActivity.class);
+        intent.putExtra("id",relics.getId());
+        startActivity(intent);
     }
 }

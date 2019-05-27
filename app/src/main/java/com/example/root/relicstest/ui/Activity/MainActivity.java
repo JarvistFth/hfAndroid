@@ -2,10 +2,13 @@ package com.example.root.relicstest.Activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -50,15 +53,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     @BindView(R.id.lly_mine)
     LinearLayout llyMine;
 
-    @BindView(R.id.iv_chain)
-    ImageView ivChain;
-    @BindView(R.id.tv_chain)
-    TextView tvChain;
-    @BindView(R.id.lly_chain)
-    LinearLayout llyChain;
 
     Retrofit retrofit ;
     String username ;
+
+    public static final int handlerMsg = 1;
+
+    List<Fragment> fragmentList = new ArrayList<>();
+
 
     UserDetails userDetails;
     List<Relics> relicsList;
@@ -68,13 +70,37 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private HomePagerAdapter homePagerAdapter;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        bindView();
-        setListner();
-    }
+    private Handler handler = new Handler(){
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case handlerMsg:
+                    userDetails = (UserDetails) msg.obj;
+                    PropertyFragment propertyFragment = new PropertyFragment();
+                    MineFragment mineFragment = new MineFragment();
+                    Bundle mineBundle = new Bundle();
+                    Bundle proBundle = new Bundle();
+                    if(userDetails!= null){
+                        mineBundle.putSerializable("userDetails",userDetails);
+                    }
+
+                    if(userDetails != null){
+                        proBundle.putString("username",userDetails.getName());
+                    }
+
+
+                    Log.d("handler:",userDetails.toString());
+                    mineFragment.setArguments(mineBundle);
+                    propertyFragment.setArguments(proBundle);
+                    fragmentList.add(propertyFragment);
+                    fragmentList.add(mineFragment);
+                    homePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragmentList);
+                    vpHome.setAdapter(homePagerAdapter);
+                    vpHome.setCurrentItem(0, false);
+            }
+        }
+    };
+
+
 
     @Override
     public void BindView() {
@@ -88,23 +114,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     @Override
     public int getLayoutID() {
-        return 0;
+        return R.layout.activity_main;
     }
 
     @Override
     public void initToolBar() {
-
+        
     }
 
     @Override
     public void initDatas() {
+        Log.d("MA:","initing Data..");
         Intent intent = getIntent();
-        intent.getStringExtra("username");
-        retrofit_get();
+        username = intent.getStringExtra("username");
+        retrofit_get(username);
     }
 
     @Override
     public void configViews() {
+        Log.d("MA:","configuing views..");
         ivMall.setSelected(true);
         tvMall.setSelected(true);
 
@@ -112,23 +140,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         llyMine.setOnClickListener(this);
 
         vpHome.setOffscreenPageLimit(2);
-        List<Fragment> fragmentList = new ArrayList<>();
-
-        PropertyFragment propertyFragment = new PropertyFragment();
-        MineFragment mineFragment = new MineFragment();
-        Bundle mineBundle = new Bundle();
-        Bundle proBundle = new Bundle();
-        if(userDetails!= null){
-            mineBundle.putSerializable("userDetails",userDetails);
-        }
-        mineFragment.setArguments(mineBundle);
-
-        fragmentList.add(propertyFragment);
-//        fragmentList.add(new DiscoveryFragment());
-        fragmentList.add(mineFragment);
-        homePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), fragmentList);
-        vpHome.setAdapter(homePagerAdapter);
-        vpHome.setCurrentItem(0, false);
     }
 
     void bindView(){
@@ -142,29 +153,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         showmore_btn.setOnClickListener(this);
     }
 
+
     @Override
     public void onClick(View v) {
+        setAllUnselected();
         switch (v.getId()){
-//            case R.id.Query:
-//                Intent intent = new Intent(MainActivity.this,UploadActivity.class);
-//                Bundle bundle = new Bundle();
-//                UserDetails userDetails = new UserDetails();
-//                userDetails.setName("jjw");
-//                userDetails.setOrganization("Org1");
-//                bundle.putSerializable("user",userDetails);
-//                intent.putExtras(bundle);
-//                startActivity(intent);
-//                break;
-//            case R.id.QueryHistory:
-//                break;
-//            case R.id.RelicsTransfer:
-
-//                toIntent(MainActivity.this,RelicsTransferActivity.class);
-
-//                break;
-//            case R.id.RelicsShow:
-//                toIntent(MainActivity.this,RelicsAllActivity.class);
-//                break;
+            case R.id.lly_mall:// 商场
+                ivMall.setSelected(true);
+                tvMall.setSelected(true);
+                vpHome.setCurrentItem(0, false);
+                break;
+            case R.id.lly_mine:// 我的
+                ivMine.setSelected(true);
+                tvMine.setSelected(true);
+                vpHome.setCurrentItem(1, false);
+                break;
 
         }
     }
@@ -175,7 +178,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         startActivity(intent);
     }
 
-    void retrofit_get(){
+    void retrofit_get(String username){
         retrofit = RetrofitUtils.getRetrofit();
         Call<UserDetails> call = retrofit.create(HFApiService.class).getUserDetails(username);
         call.enqueue(new Callback<UserDetails>() {
@@ -183,6 +186,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
             public void onResponse(Call<UserDetails> call, Response<UserDetails> response) {
                 if(response.isSuccessful()){
                     userDetails = response.body();
+                    Log.d("tag",userDetails.toString());
+                    Message msg = new Message();
+                    msg.what = handlerMsg;
+                    msg.obj = userDetails;
+                    handler.sendMessage(msg);
                 }
             }
 
@@ -191,5 +199,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 Toast.makeText(MainActivity.this,t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setAllUnselected() {
+        ivMall.setSelected(false);
+        tvMall.setSelected(false);
+        ivMine.setSelected(false);
+        tvMine.setSelected(false);
     }
 }

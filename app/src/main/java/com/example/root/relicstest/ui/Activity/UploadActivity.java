@@ -69,14 +69,7 @@ public class UploadActivity extends BaseActivity {
 
     }
 
-    void checkpermission(){
-        int presult = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-        if(presult != PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
-        }else{
-            openAlbum();
-        }
-    }
+
 
     @Override
     public void BindView() {
@@ -107,6 +100,15 @@ public class UploadActivity extends BaseActivity {
                     retrofit_file(file);
                 }
                 break;
+        }
+    }
+
+    void checkpermission(){
+        int presult = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if(presult != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
+        }else{
+            openAlbum();
         }
     }
 

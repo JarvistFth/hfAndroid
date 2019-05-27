@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.root.relicstest.Adapter.RelicsAdapter;
 import com.example.root.relicstest.Entities.Relics;
 import com.example.root.relicstest.Entities.ResponseCode;
 import com.example.root.relicstest.Entities.Transaction;
@@ -21,12 +22,14 @@ import com.example.root.relicstest.R;
 import com.example.root.relicstest.Utils.ConstantUtils;
 import com.example.root.relicstest.Utils.RetrofitUtils;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class RelicsTransferActivity extends BaseActivity{
+public class RelicsTransferActivity extends BaseActivity {
     private TextView tv_id,tv_name,tv_poster,tv_value,tv_details,tv_datetime;
 
     private ImageView iv_relics;
@@ -36,6 +39,10 @@ public class RelicsTransferActivity extends BaseActivity{
     private Integer relicsId;
 
     private Button buy_btn;
+
+    String username,postername;
+
+
 
     private static final int UPDATE_RELICS = 1;
 
@@ -96,7 +103,10 @@ public class RelicsTransferActivity extends BaseActivity{
     public void initDatas() {
         Intent intent = getIntent();
         relicsId = intent.getIntExtra("id",0);
+        username = intent.getStringExtra("username");
+        postername = intent.getStringExtra("poster");
         getDetails();
+
     }
 
     @Override
@@ -127,8 +137,8 @@ public class RelicsTransferActivity extends BaseActivity{
 
     void rt_transfer(){
         Transaction transaction = new Transaction();
-        transaction.setNewOwnerName("admin");
-        transaction.setOwnerName(tv_name.getText().toString());
+        transaction.setNewOwnerName(username);
+        transaction.setOwnerName(postername);
         transaction.setOrgName("Org1");
         HFApiService hfApiService = retrofit.create(HFApiService.class);
         Call<ResponseCode> call = hfApiService.invokeTransfer(tv_id.getText().toString(),transaction);
@@ -151,4 +161,6 @@ public class RelicsTransferActivity extends BaseActivity{
             }
         });
     }
+
+
 }

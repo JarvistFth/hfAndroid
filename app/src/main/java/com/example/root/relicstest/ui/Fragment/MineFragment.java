@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.root.relicstest.Activity.UpdatePersonInfoActivity;
 import com.example.root.relicstest.Entities.UserDetails;
 import com.example.root.relicstest.Interface.HFApiService;
 import com.example.root.relicstest.R;
+import com.example.root.relicstest.Utils.ConstantUtils;
 import com.example.root.relicstest.Utils.RetrofitUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -23,8 +26,9 @@ public class MineFragment extends BaseFragment{
     @BindView(R.id.tv_setusername)
     TextView tv_setUsername;
 
-    @BindView(R.id.tv_setCreateTime)
-    TextView tv_setCreateTime;
+
+    @BindView(R.id.tv_setAddress)
+    TextView tv_setAddress;
 
     @BindView(R.id.tv_setOrg)
     TextView tv_setOrg;
@@ -37,6 +41,9 @@ public class MineFragment extends BaseFragment{
 
     @BindView(R.id.tv_setValue)
     TextView tv_setValue;
+
+    @BindView(R.id.civ_avatar)
+    CircleImageView civ_avatar;
 
     UserDetails userDetails;
 
@@ -53,8 +60,14 @@ public class MineFragment extends BaseFragment{
 
     @Override
     public void initDatas() {
-        userDetails = (UserDetails)getArguments().getSerializable()
-        tv_setUsername.setText();
+        userDetails = (UserDetails)getArguments().getSerializable("userDetails");
+        tv_setUsername.setText(userDetails.getName());
+        tv_setAddress.setText(userDetails.getAddress());
+        tv_setOrg.setText(userDetails.getOrganization());
+        tv_setSex.setText(userDetails.getSex());
+        tv_setValue.setText(userDetails.getBalance().toString());
+        tv_setTelephone.setText(userDetails.getTelephone());
+        Glide.with(this).load(ConstantUtils.BaseIMGURL + userDetails.getAvatar()).into(civ_avatar);
     }
 
     @Override
